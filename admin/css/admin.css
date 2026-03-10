@@ -1,0 +1,560 @@
+/* ==========================================================================
+   ProductFeed Admin Styles
+   ========================================================================== */
+
+.pf-instock {
+    color: #46b450;
+    font-weight: 600;
+}
+
+.pf-outofstock {
+    color: #dc3232;
+    font-weight: 600;
+}
+
+#pf-results-table img {
+    border-radius: 4px;
+    background: #f0f0f0;
+}
+
+#pf-results-table td {
+    vertical-align: middle;
+}
+
+#pf-results-table tr:hover {
+    background-color: #f0f6fc;
+}
+
+.pf-no-feed {
+    opacity: 0.5;
+}
+
+/* ==========================================================================
+   ProductFeed Frontend Styles — Strikkeglaede.dk match
+   Hello Elementor tema: sort/hvid, ren, minimalistisk
+   ========================================================================== */
+
+:root {
+    --pf-text: #1e1e1e;
+    --pf-text-light: #666;
+    --pf-bg: #fff;
+    --pf-bg-hover: #fafafa;
+    --pf-border: #e8e8e8;
+    --pf-accent: #1e1e1e;
+    --pf-accent-hover: #333;
+    --pf-price: #1e1e1e;
+    --pf-sale: #c0392b;
+    --pf-stock-green: #27ae60;
+    --pf-stock-red: #c0392b;
+    --pf-radius: 0px;
+    --pf-font: inherit;
+}
+
+/* Grid layout */
+.pf-product-grid {
+    display: grid;
+    gap: 24px;
+    margin: 32px 0;
+}
+
+.pf-product-grid.pf-cols-2 { grid-template-columns: repeat(2, 1fr); }
+.pf-product-grid.pf-cols-3 { grid-template-columns: repeat(3, 1fr); }
+.pf-product-grid.pf-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+@media (max-width: 768px) {
+    .pf-product-grid.pf-cols-3,
+    .pf-product-grid.pf-cols-4 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    .pf-product-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* Produktkort */
+.pf-product-card {
+    font-family: var(--pf-font);
+    background: var(--pf-bg);
+    border: 1px solid var(--pf-border);
+    border-radius: var(--pf-radius);
+    overflow: hidden;
+    transition: border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.pf-product-card:hover {
+    border-color: #ccc;
+}
+
+.pf-product-card a {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Billede */
+.pf-product-image {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #f7f7f7;
+}
+
+.pf-product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.pf-product-card:hover .pf-product-image img {
+    transform: scale(1.03);
+}
+
+/* Tilbuds-badge */
+.pf-badge-sale {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--pf-sale);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+}
+
+/* Info-sektion */
+.pf-product-info {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.pf-product-brand {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--pf-text-light);
+    margin-bottom: 4px;
+}
+
+.pf-product-name {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--pf-text);
+    margin: 0 0 10px;
+}
+
+.pf-product-name a:hover {
+    color: var(--pf-text-light);
+}
+
+/* Pris */
+.pf-product-price {
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.pf-price-current {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--pf-price);
+}
+
+.pf-price-old {
+    font-size: 13px;
+    color: #999;
+    text-decoration: line-through;
+    margin-left: 6px;
+}
+
+.pf-price-sale .pf-price-current {
+    color: var(--pf-sale);
+}
+
+/* Meta-info */
+.pf-product-meta {
+    font-size: 12px;
+    color: var(--pf-text-light);
+    margin-bottom: 14px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 12px;
+}
+
+.pf-meta-merchant {
+    font-weight: 500;
+}
+
+.pf-meta-stock {
+    color: var(--pf-stock-green);
+}
+
+.pf-meta-stock.pf-outofstock {
+    color: var(--pf-stock-red);
+}
+
+.pf-meta-shipping,
+.pf-meta-delivery {
+    color: var(--pf-text-light);
+}
+
+/* Køb-knap */
+.pf-buy-button {
+    display: block;
+    width: 100%;
+    padding: 11px 20px;
+    background: var(--pf-accent);
+    color: #fff;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    border-radius: var(--pf-radius);
+    transition: background 0.2s ease;
+    box-sizing: border-box;
+    margin-top: auto;
+}
+
+.pf-buy-button:hover {
+    background: var(--pf-accent-hover);
+    color: #fff;
+}
+
+/* ==========================================================================
+   List layout
+   ========================================================================== */
+
+.pf-product-list .pf-product-card {
+    flex-direction: row;
+    align-items: stretch;
+}
+
+.pf-product-list .pf-product-image {
+    width: 180px;
+    min-width: 180px;
+    aspect-ratio: auto;
+}
+
+.pf-product-list .pf-product-info {
+    padding: 20px;
+}
+
+.pf-product-list .pf-product-name {
+    font-size: 16px;
+}
+
+.pf-product-list .pf-product-description {
+    font-size: 13px;
+    color: var(--pf-text-light);
+    line-height: 1.5;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.pf-product-list .pf-buy-button {
+    width: auto;
+    display: inline-block;
+}
+
+@media (max-width: 600px) {
+    .pf-product-list .pf-product-card {
+        flex-direction: column;
+    }
+    .pf-product-list .pf-product-image {
+        width: 100%;
+    }
+}
+
+/* ==========================================================================
+   Prissammenlignings-tabel
+   ========================================================================== */
+
+.pf-product-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    font-family: var(--pf-font);
+}
+
+.pf-product-table th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--pf-text-light);
+    font-weight: 500;
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 2px solid var(--pf-border);
+}
+
+.pf-product-table td {
+    padding: 14px;
+    border-bottom: 1px solid var(--pf-border);
+    vertical-align: middle;
+    font-size: 14px;
+    color: var(--pf-text);
+}
+
+.pf-product-table tr:hover {
+    background: var(--pf-bg-hover);
+}
+
+.pf-product-table .pf-table-product {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.pf-product-table .pf-table-thumb {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    background: #f7f7f7;
+    flex-shrink: 0;
+}
+
+.pf-product-table .pf-table-name {
+    font-weight: 500;
+}
+
+.pf-product-table .pf-table-price {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pf-table-buy {
+    display: inline-block;
+    padding: 8px 18px;
+    background: var(--pf-accent);
+    color: #fff;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: background 0.2s ease;
+}
+
+.pf-table-buy:hover {
+    background: var(--pf-accent-hover);
+    color: #fff;
+}
+
+/* ==========================================================================
+   Compact / inline layout (til brug i brødtekst)
+   ========================================================================== */
+
+.pf-product-compact {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border: 1px solid var(--pf-border);
+    margin: 16px 0;
+    font-family: var(--pf-font);
+}
+
+.pf-product-compact img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.pf-product-compact .pf-compact-info {
+    flex-grow: 1;
+}
+
+.pf-product-compact .pf-compact-name {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+}
+
+.pf-product-compact .pf-compact-meta {
+    font-size: 12px;
+    color: var(--pf-text-light);
+}
+
+.pf-product-compact .pf-compact-price {
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pf-product-compact .pf-compact-buy {
+    padding: 8px 16px;
+    background: var(--pf-accent);
+    color: #fff;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   Prissammenligning layout
+   ========================================================================== */
+
+.pf-compare-product {
+    background: var(--pf-bg);
+    border: 1px solid var(--pf-border);
+    margin: 32px 0;
+    font-family: var(--pf-font);
+}
+
+.pf-compare-header {
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+}
+
+.pf-compare-image {
+    width: 180px;
+    min-width: 180px;
+}
+
+.pf-compare-image img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.pf-compare-details {
+    flex: 1;
+}
+
+.pf-compare-name {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 10px;
+    color: var(--pf-text);
+}
+
+.pf-compare-description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--pf-text-light);
+    margin-bottom: 14px;
+}
+
+.pf-compare-attrs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 20px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: var(--pf-text);
+}
+
+.pf-compare-attr {
+    white-space: nowrap;
+}
+
+.pf-compare-cta {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--pf-text);
+    margin: 16px 0 0;
+}
+
+.pf-compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--pf-font);
+}
+
+.pf-compare-table thead th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--pf-text-light);
+    font-weight: 500;
+    padding: 10px 24px;
+    text-align: left;
+    border-top: 1px solid var(--pf-border);
+    border-bottom: 1px solid var(--pf-border);
+}
+
+.pf-compare-table td {
+    padding: 14px 24px;
+    border-bottom: 1px solid var(--pf-border);
+    vertical-align: middle;
+    font-size: 14px;
+}
+
+.pf-compare-table tr:hover {
+    background: var(--pf-bg-hover);
+}
+
+.pf-compare-table tr.pf-cheapest {
+    background: #f0faf0;
+}
+
+.pf-compare-table tr.pf-cheapest:hover {
+    background: #e5f5e5;
+}
+
+.pf-compare-merchant {
+    font-weight: 500;
+}
+
+.pf-compare-price {
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+.pf-compare-buy {
+    display: inline-block;
+    padding: 8px 20px;
+    background: var(--pf-accent);
+    color: #fff;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+}
+
+.pf-compare-buy:hover {
+    background: var(--pf-accent-hover);
+    color: #fff;
+}
+
+@media (max-width: 600px) {
+    .pf-compare-header {
+        flex-direction: column;
+    }
+    .pf-compare-image {
+        width: 100%;
+        max-width: 200px;
+    }
+    .pf-compare-table td,
+    .pf-compare-table th {
+        padding: 10px 12px;
+    }
+}
+
+/* Ingen produkter */
+.pf-no-products {
+    text-align: center;
+    padding: 40px;
+    color: var(--pf-text-light);
+}
