@@ -67,7 +67,11 @@ class PF_Saved_Filters {
                         <?php $product_count = count($data['product_ids'] ?? []); ?>
                         <tr>
                             <td><?php echo (int) $filter->id; ?></td>
-                            <td><strong><?php echo esc_html($filter->name); ?></strong></td>
+                            <td>
+                                <a href="#" class="pf-view-group" data-id="<?php echo (int) $filter->id; ?>" data-name="<?php echo esc_attr($filter->name); ?>">
+                                    <strong><?php echo esc_html($filter->name); ?></strong>
+                                </a>
+                            </td>
                             <td><?php echo $product_count; ?> stk.</td>
                             <td>
                                 <code>[produktgruppe id="<?php echo (int) $filter->id; ?>"]</code>
@@ -82,24 +86,140 @@ class PF_Saved_Filters {
                     </tbody>
                 </table>
             <?php endif; ?>
+
+            <!-- Produktvisning for valgt gruppe -->
+            <div id="pf-group-detail" style="display:none;margin-top:24px;max-width:1000px;">
+                <h2 id="pf-group-detail-title"></h2>
+                <table class="widefat striped" id="pf-group-products-table">
+                    <thead>
+                        <tr>
+                            <th style="width:60px;">Billede</th>
+                            <th>Produkt</th>
+                            <th>Forhandler</th>
+                            <th>Pris</th>
+                            <th style="width:60px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="pf-group-products-body">
+                    </tbody>
+                </table>
+                <p id="pf-group-empty" style="display:none;color:#666;">Ingen produkter i denne gruppe.</p>
+            </div>
         </div>
 
         <script>
-        document.querySelectorAll('.pf-delete-filter').forEach(function(btn) {
-            btn.addEventListener('click', function() {
-                if (!confirm('Slet denne produktgruppe?')) return;
+        (function() {
+            var nonce = '<?php echo wp_create_nonce("pf_nonce"); ?>';
+            var currentGroupId = null;
+
+            // Slet produktgruppe
+            document.querySelectorAll('.pf-delete-filter').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    if (!confirm('Slet denne produktgruppe?')) return;
+
+                    fetch(ajaxurl, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                        body: new URLSearchParams({
+                            action: 'pf_delete_filter',
+                            nonce: nonce,
+                            filter_id: this.dataset.id
+                        })
+                    }).then(function() { location.reload(); });
+                });
+            });
+
+            // Vis produkter i gruppe
+            document.querySelectorAll('.pf-view-group').forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    var id = this.dataset.id;
+                    var name = this.dataset.name;
+                    currentGroupId = id;
+
+                    document.getElementById('pf-group-detail-title').textContent = 'Produkter i: ' + name;
+                    document.getElementById('pf-group-detail').style.display = 'block';
+
+                    loadGroupProducts(id);
+                });
+            });
+
+            function loadGroupProducts(filterId) {
+                var body = document.getElementById('pf-group-products-body');
+                var empty = document.getElementById('pf-group-empty');
+                body.innerHTML = '<tr><td colspan="5">Indlæser...</td></tr>';
+                empty.style.display = 'none';
 
                 fetch(ajaxurl, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/x-www-form-urlencoded'},
                     body: new URLSearchParams({
-                        action: 'pf_delete_filter',
-                        nonce: '<?php echo wp_create_nonce("pf_nonce"); ?>',
-                        filter_id: this.dataset.id
+                        action: 'pf_get_group_products',
+                        nonce: nonce,
+                        filter_id: filterId
                     })
-                }).then(function() { location.reload(); });
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(res) {
+                    body.innerHTML = '';
+                    if (!res.success || !res.data.products.length) {
+                        empty.style.display = 'block';
+                        document.getElementById('pf-group-products-table').style.display = 'none';
+                        return;
+                    }
+
+                    document.getElementById('pf-group-products-table').style.display = '';
+                    empty.style.display = 'none';
+
+                    res.data.products.forEach(function(p) {
+                        var tr = document.createElement('tr');
+                        tr.innerHTML =
+                            '<td><img src="' + (p.image || '') + '" style="width:50px;height:50px;object-fit:contain;background:#f7f7f7;" onerror="this.style.display=\'none\'"></td>' +
+                            '<td><strong>' + p.name + '</strong></td>' +
+                            '<td>' + (p.merchant || '—') + '</td>' +
+                            '<td>' + p.price + ' kr</td>' +
+                            '<td><button class="button pf-remove-product" data-wc-id="' + p.id + '" title="Fjern fra gruppe">✕</button></td>';
+                        body.appendChild(tr);
+                    });
+                });
+            }
+
+            // Fjern produkt fra gruppe
+            document.getElementById('pf-group-products-body').addEventListener('click', function(e) {
+                var btn = e.target.closest('.pf-remove-product');
+                if (!btn) return;
+                if (!confirm('Fjern dette produkt fra gruppen?')) return;
+
+                var wcId = btn.dataset.wcId;
+                btn.disabled = true;
+                btn.textContent = '...';
+
+                fetch(ajaxurl, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: new URLSearchParams({
+                        action: 'pf_remove_from_group',
+                        nonce: nonce,
+                        filter_id: currentGroupId,
+                        wc_id: wcId
+                    })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(res) {
+                    if (res.success) {
+                        btn.closest('tr').remove();
+                        // Opdater antal i tabellen
+                        var countCell = document.querySelector('.pf-view-group[data-id="' + currentGroupId + '"]').closest('tr').children[2];
+                        var current = parseInt(countCell.textContent);
+                        countCell.textContent = (current - 1) + ' stk.';
+                    } else {
+                        btn.disabled = false;
+                        btn.textContent = '✕';
+                        alert('Fejl: ' + (res.data || 'Ukendt fejl'));
+                    }
+                });
             });
-        });
+        })();
         </script>
         <?php
     }
@@ -298,5 +418,96 @@ class PF_Saved_Filters {
         );
 
         wp_send_json_success(['filters' => $filters]);
+    }
+
+    /**
+     * AJAX: Hent produkter i en produktgruppe.
+     */
+    public static function ajax_get_group_products(): void {
+        check_ajax_referer('pf_nonce', 'nonce');
+
+        $filter_id = intval($_POST['filter_id'] ?? 0);
+        if (!$filter_id) {
+            wp_send_json_error('Manglende ID');
+        }
+
+        global $wpdb;
+        $filter = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}pf_filters WHERE id = %d",
+            $filter_id
+        ));
+
+        if (!$filter) {
+            wp_send_json_error('Produktgruppe ikke fundet');
+        }
+
+        $filter_data = json_decode($filter->filter_data, true);
+        $product_ids = $filter_data['product_ids'] ?? [];
+
+        $products = [];
+        foreach ($product_ids as $pid) {
+            $product = wc_get_product((int) $pid);
+            if (!$product) {
+                continue;
+            }
+            $image = wp_get_attachment_image_url($product->get_image_id(), 'thumbnail');
+            $products[] = [
+                'id'       => $product->get_id(),
+                'name'     => $product->get_name(),
+                'image'    => $image ?: '',
+                'merchant' => $product->get_meta('_pf_merchant'),
+                'price'    => $product->get_price(),
+            ];
+        }
+
+        wp_send_json_success(['products' => $products]);
+    }
+
+    /**
+     * AJAX: Fjern et produkt fra en produktgruppe.
+     */
+    public static function ajax_remove_from_group(): void {
+        check_ajax_referer('pf_nonce', 'nonce');
+
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error('Ingen adgang');
+        }
+
+        $filter_id = intval($_POST['filter_id'] ?? 0);
+        $wc_id = intval($_POST['wc_id'] ?? 0);
+
+        if (!$filter_id || !$wc_id) {
+            wp_send_json_error('Manglende data');
+        }
+
+        global $wpdb;
+        $filter = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}pf_filters WHERE id = %d",
+            $filter_id
+        ));
+
+        if (!$filter) {
+            wp_send_json_error('Produktgruppe ikke fundet');
+        }
+
+        $filter_data = json_decode($filter->filter_data, true);
+        $product_ids = $filter_data['product_ids'] ?? [];
+
+        $filter_data['product_ids'] = array_values(array_filter($product_ids, function ($id) use ($wc_id) {
+            return (int) $id !== $wc_id;
+        }));
+
+        $wpdb->update(
+            $wpdb->prefix . 'pf_filters',
+            [
+                'filter_data' => wp_json_encode($filter_data),
+                'updated_at'  => current_time('mysql'),
+            ],
+            ['id' => $filter_id],
+            ['%s', '%s'],
+            ['%d']
+        );
+
+        wp_send_json_success();
     }
 }

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: ProductFeed
  * Description: Import affiliate-produkter fra Partner-ads og Adtraction til WooCommerce
- * Version: 1.7.0
+ * Version: 1.7.1
  * Author: Magnus Nøhr
  * Requires at least: 6.0
  * Requires PHP: 8.0
@@ -11,7 +11,7 @@
 
 defined('ABSPATH') || exit;
 
-define('PF_VERSION', '1.7.0');
+define('PF_VERSION', '1.7.1');
 define('PF_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('PF_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('PF_PLUGIN_FILE', __FILE__);
@@ -129,6 +129,8 @@ class ProductFeed {
         add_action('wp_ajax_pf_list_filters', [PF_Saved_Filters::class, 'ajax_list']);
         add_action('wp_ajax_pf_add_to_filter', [PF_Saved_Filters::class, 'ajax_add_to']);
         add_action('wp_ajax_pf_update_filter_wc_ids', [PF_Saved_Filters::class, 'ajax_update_wc_ids']);
+        add_action('wp_ajax_pf_get_group_products', [PF_Saved_Filters::class, 'ajax_get_group_products']);
+        add_action('wp_ajax_pf_remove_from_group', [PF_Saved_Filters::class, 'ajax_remove_from_group']);
         add_action('wp_ajax_pf_refresh_feed', [PF_Feed_Cache::class, 'ajax_refresh']);
         add_action('wp_ajax_pf_fetch_programs', [PF_Partnerads_API::class, 'ajax_fetch_programs']);
         add_action('wp_ajax_pf_reset_template', [PF_Design_Page::class, 'ajax_reset_template']);
